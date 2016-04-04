@@ -37,7 +37,7 @@ end
 
 post '/slack-incoming' do
   begin
-    return if params[:token] != ENV['SLACK_TOKEN']
+    raise "bad token: #{params[:token[]]}" if params[:token] != ENV['SLACK_TOKEN']
 
     track_id = SPOTIFY_ID_TRACK_REGEX.match(params[:text])[1]
 
