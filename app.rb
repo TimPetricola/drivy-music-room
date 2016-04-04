@@ -1,3 +1,4 @@
+require 'rollbar'
 require 'rspotify'
 require 'rspotify/oauth'
 require 'sinatra'
