@@ -21,10 +21,6 @@ RSpotify::authenticate(ENV['SPOTIFY_CLIENT_ID'], ENV['SPOTIFY_CLIENT_SECRET'])
 
 SPOTIFY_ID_TRACK_REGEX = /(?:(?:open|play)\.spotify\.com\/track\/|spotify:track:)(\w+)/i
 
-get '/' do
-  redirect to('/auth/spotify')
-end
-
 get '/auth/spotify/callback' do
   begin
     REDIS.set('oauth', request.env['omniauth.auth'].to_json)
@@ -37,11 +33,13 @@ end
 
 post '/slack-incoming' do
   begin
-    raise "bad token: #{params[:token[]]}" if params[:token] != ENV['SLACK_TOKEN']
-
-    track_id = SPOTIFY_ID_TRACK_REGEX.match(params[:text])[1]
+    raise "bad token: #{params[:token}" if params[:token] != ENV['SLACK_TOKEN']
 
     puts "incoming hook: #{params[:text]}"
+
+    match = SPOTIFY_ID_TRACK_REGEX.match(params[:text])
+    track_id = match && match[1]
+
     return unless track_id
 
     puts "track id #{track_id}"
@@ -50,7 +48,6 @@ post '/slack-incoming' do
     user = RSpotify::User.new(credentials)
 
     playlist = RSpotify::Playlist.find(user.id, ENV['SPOTIFY_PLAYLIST_ID'])
-    puts track_id
     track =  RSpotify::Base.find(track_id, 'track')
 
     playlist.add_tracks!([track])
