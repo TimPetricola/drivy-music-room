@@ -28,6 +28,9 @@ end
 get '/auth/spotify/callback' do
   REDIS.set('oauth', request.env['omniauth.auth'].to_json)
   request.env['omniauth.auth'].to_json
+rescue Exception => e
+  Rollbar.error(e) if ENV['ROLLBAR_ACCESS_TOKEN']
+  raise e
 end
 
 post '/slack-incoming' do
@@ -43,8 +46,9 @@ post '/slack-incoming' do
   playlist = RSpotify::Playlist.find(user.id, ENV['SPOTIFY_PLAYLIST_ID'])
   track =  RSpotify::Base.find(track_id, 'track')
 
-  puts
-
   playlist.add_tracks!([track])
   nil
+rescue Exception => e
+  Rollbar.error(e) if ENV['ROLLBAR_ACCESS_TOKEN']
+  raise e
 end
