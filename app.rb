@@ -26,29 +26,33 @@ get '/' do
 end
 
 get '/auth/spotify/callback' do
-  REDIS.set('oauth', request.env['omniauth.auth'].to_json)
-  request.env['omniauth.auth'].to_json
-rescue Exception => e
-  Rollbar.error(e) if ENV['ROLLBAR_ACCESS_TOKEN']
-  raise e
+  begin
+    REDIS.set('oauth', request.env['omniauth.auth'].to_json)
+    request.env['omniauth.auth'].to_json
+  rescue Exception => e
+    Rollbar.error(e) if ENV['ROLLBAR_ACCESS_TOKEN']
+    raise e
+  end
 end
 
 post '/slack-incoming' do
-  return if params[:token] != ENV['SLACK_TOKEN']
+  begin
+    return if params[:token] != ENV['SLACK_TOKEN']
 
-  track_id = SPOTIFY_ID_TRACK_REGEX.match(params[:text])[1]
+    track_id = SPOTIFY_ID_TRACK_REGEX.match(params[:text])[1]
 
-  return unless track_id
+    return unless track_id
 
-  credentials = JSON.parse(REDIS.get('oauth'))
-  user = RSpotify::User.new(credentials)
+    credentials = JSON.parse(REDIS.get('oauth'))
+    user = RSpotify::User.new(credentials)
 
-  playlist = RSpotify::Playlist.find(user.id, ENV['SPOTIFY_PLAYLIST_ID'])
-  track =  RSpotify::Base.find(track_id, 'track')
+    playlist = RSpotify::Playlist.find(user.id, ENV['SPOTIFY_PLAYLIST_ID'])
+    track =  RSpotify::Base.find(track_id, 'track')
 
-  playlist.add_tracks!([track])
-  nil
-rescue Exception => e
-  Rollbar.error(e) if ENV['ROLLBAR_ACCESS_TOKEN']
-  raise e
+    playlist.add_tracks!([track])
+    nil
+  rescue Exception => e
+    Rollbar.error(e) if ENV['ROLLBAR_ACCESS_TOKEN']
+    raise e
+  end
 end
