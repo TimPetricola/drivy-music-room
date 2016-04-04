@@ -4,15 +4,22 @@ require 'sinatra'
 require 'omniauth'
 require 'redis'
 
-REDIS = Redis.new
-RSpotify::authenticate(ENV['SPOTIFY_CLIENT_ID'], ENV['SPOTIFY_CLIENT_SECRET'])
+if ENV['ROLLBAR_ACCESS_TOKEN']
+  Rollbar.configure do |config|
+    config.access_token = ENV['ROLLBAR_ACCESS_TOKEN']
+  end
+end
 
-SPOTIFY_ID_TRACK_REGEX = /(?:open\.spotify\.com\/track\/|spotify:track:)(\w+)/i
-
+use Rollbar::Middleware::Sinatra
 use Rack::Session::Cookie
 use OmniAuth::Builder do
   provider :spotify, ENV['SPOTIFY_CLIENT_ID'], ENV['SPOTIFY_CLIENT_SECRET'], scope: 'playlist-read-private playlist-modify-public playlist-modify-private'
 end
+
+REDIS = Redis.new(url: ENV['REDIS_URL'])
+RSpotify::authenticate(ENV['SPOTIFY_CLIENT_ID'], ENV['SPOTIFY_CLIENT_SECRET'])
+
+SPOTIFY_ID_TRACK_REGEX = /(?:open\.spotify\.com\/track\/|spotify:track:)(\w+)/i
 
 get '/' do
   redirect to('/auth/spotify')
