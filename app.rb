@@ -19,7 +19,7 @@ end
 REDIS = Redis.new(url: ENV['REDIS_URL'])
 RSpotify::authenticate(ENV['SPOTIFY_CLIENT_ID'], ENV['SPOTIFY_CLIENT_SECRET'])
 
-SPOTIFY_ID_TRACK_REGEX = /(?:open\.spotify\.com\/track\/|spotify:track:)(\w+)/i
+SPOTIFY_ID_TRACK_REGEX = /(?:(:?open|play)\.spotify\.com\/track\/|spotify:track:)(\w+)/i
 
 get '/' do
   redirect to('/auth/spotify')
