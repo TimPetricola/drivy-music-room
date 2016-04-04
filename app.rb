@@ -11,7 +11,6 @@ if ENV['ROLLBAR_ACCESS_TOKEN']
   end
 end
 
-use Rollbar::Middleware::Sinatra
 use Rack::Session::Cookie
 use OmniAuth::Builder do
   provider :spotify, ENV['SPOTIFY_CLIENT_ID'], ENV['SPOTIFY_CLIENT_SECRET'], scope: 'playlist-read-private playlist-modify-public playlist-modify-private'
