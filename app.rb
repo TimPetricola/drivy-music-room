@@ -47,6 +47,7 @@ post '/slack-incoming' do
     user = RSpotify::User.new(credentials)
 
     playlist = RSpotify::Playlist.find(user.id, ENV['SPOTIFY_PLAYLIST_ID'])
+    puts track_id
     track =  RSpotify::Base.find(track_id, 'track')
 
     playlist.add_tracks!([track])
