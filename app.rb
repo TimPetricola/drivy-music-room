@@ -41,6 +41,7 @@ post '/slack-incoming' do
 
     track_id = SPOTIFY_ID_TRACK_REGEX.match(params[:text])[1]
 
+    puts "incoming hook"
     return unless track_id
 
     credentials = JSON.parse(REDIS.get('oauth'))
