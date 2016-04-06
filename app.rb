@@ -33,7 +33,7 @@ end
 
 post '/slack-incoming' do
   begin
-    raise "bad token: #{params[:token}" if params[:token] != ENV['SLACK_TOKEN']
+    raise "bad token: #{params[:token]}" if params[:token] != ENV['SLACK_TOKEN']
 
     puts "incoming hook: #{params[:text]}"
 
